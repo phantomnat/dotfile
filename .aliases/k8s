@@ -26,26 +26,3 @@ alias hd='helm --kube-context gke_dev --tiller-namespace=develop'
 
 alias h26='helm26'
 alias h26d='helm26 --kube-context gke_dev'
-
-# alias kg='kubectl --context=gke'
-# alias ka='kubectl --context=azure'
-# alias kf='kubectl --context=fed'
-# alias kad='kubectl --context=dev'
-# alias kd2='kubectl --context=dev2'
-# alias ksys='kubectl -n kube-system'
-# alias kcys='kubectl -n cc-system'
-# alias kstg='kubectl -n staging'
-# alias kdev='kubectl -n develop'
-
-# alias kgp='kubectl --context=gke -n production'
-# alias kgc='kubectl --context=gke -n cc-system'
-
-# alias hp='helm --tiller-namespace production'
-# alias hcys='helm --tiller-namespace cc-system'
-# alias hsys='helm --tiller-namespace kube-system'
-# alias hstg='helm --tiller-namespac staging'
-# alias hdev='helm --tiller-namespace develop'
-
-# alias kc='kubectl config'
-# alias kcgc='kubectl config get-contexts'
-# alias kcuc='kubectl config use-context'
