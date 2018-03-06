@@ -1,0 +1,51 @@
+#!/usr/bin/env zsh
+
+# kubectl autocompletion
+source <(kubectl completion zsh)
+
+export KUBECONFIG=~/.kube/config
+
+# kubectl aliases
+
+alias kpproxy='kubectl --context=prod proxy --port 8001'
+alias kdproxy='kubectl --context=gke_dev proxy --port 8002'
+
+alias kc='kubectl config'
+alias kcg='kubectl config get-contexts'
+alias kcu='kubectl config use-context'
+
+alias kp='kubectl --context=prod'
+alias kpc='kubectl config'
+alias kpcg='kubectl config get-contexts'
+alias kpcu='kubectl config use-context'
+
+# helm aliases
+alias hp='helm --kube-context prod --tiller-namespace=production'
+
+alias hd='helm --kube-context gke_dev --tiller-namespace=develop'
+
+alias h26='helm26'
+alias h26d='helm26 --kube-context gke_dev'
+
+# alias kg='kubectl --context=gke'
+# alias ka='kubectl --context=azure'
+# alias kf='kubectl --context=fed'
+# alias kad='kubectl --context=dev'
+# alias kd2='kubectl --context=dev2'
+# alias ksys='kubectl -n kube-system'
+# alias kcys='kubectl -n cc-system'
+# alias kstg='kubectl -n staging'
+# alias kdev='kubectl -n develop'
+
+# alias kgp='kubectl --context=gke -n production'
+# alias kgc='kubectl --context=gke -n cc-system'
+
+# alias hp='helm --tiller-namespace production'
+# alias hcys='helm --tiller-namespace cc-system'
+# alias hsys='helm --tiller-namespace kube-system'
+# alias hstg='helm --tiller-namespac staging'
+# alias hdev='helm --tiller-namespace develop'
+
+# alias kc='kubectl config'
+# alias kcgc='kubectl config get-contexts'
+# alias kcuc='kubectl config use-context'
