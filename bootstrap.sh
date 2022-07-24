@@ -1,8 +1,13 @@
 #!/usr/bin/env zsh
 
-cd "$(dirname "${BASH_SOURCE}")";
+CURRENT_DIR=$(pwd)
+# SOURCE_DIR=$(dirname "${BASH_SOURCE}")
+SOURCE_DIR=`dirname ${BASH_SOURCE[0]-$0}`
 
-git pull origin master;
+# echo $SOURCE_DIR
+cd $SOURCE_DIR
+
+# git pull origin main;
 
 function doIt() {
 	rsync --exclude ".git/" \
@@ -11,18 +16,22 @@ function doIt() {
 		--exclude "bootstrap.sh" \
 		--exclude "README.md" \
 		--exclude "LICENSE-MIT.txt" \
+		--exclude ".gitignore" \
 		-avh --no-perms . ~;
-  source ~/.zshrc;
-  exec -l ${SHELL}
+	cd $CURRENT_DIR
+	source ~/.zshrc;
+	exec -l $SHELL
 }
 
 if [ "$1" = "--force" -o "$1" = "-f" ]; then
 	doIt;
 else
-  read "?This may overwrite existing files in your home directory. Are you sure? (y/n) :";
-  echo "";
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    doIt;
-  fi;
+	read "?This may overwrite existing files in your home directory. Are you sure? (y/n) :";
+	echo "";
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		doIt;
+	fi;
 fi;
 unset doIt;
+
+cd $CURRENT_DIR
