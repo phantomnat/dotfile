@@ -8,11 +8,97 @@ source <(kubectl completion zsh)
 # kubectl aliases
 alias k='kubectl'
 alias kg='kubectl get'
+alias kgsort='kubectl get --sort-by .metadata.creationTimestamp'
 alias kd='kubectl describe'
+alias kgy='kubectl get -o yaml'
+alias kgw='kubectl get -o wide'
+alias kl='kubectl logs'
 
 alias kgp='kubectl get pod'
 alias krmp='kubectl delete pod'
 
+alias krs='kubectl rollout status'
+alias krsd='kubectl rollout status deployment'
+
 alias kc='kubectl config'
 alias kcg='kubectl config get-contexts'
 alias kcu='kubectl config use-context'
+
+alias kls='kubectl login -sudo=privatecloud.hk-dev-2b'
+alias kns='kubens'
+alias kctx='kubectx'
+alias knsar='kubens agoda-routing'
+alias knsas='kubens agoda-system'
+alias knsis='kubens istio-system'
+
+# log eastwest gateway
+log_eastwest()
+{
+    local cluster_name=$1
+    if [ -z "$cluster_name" ]; then
+        echo "Error: cluster_name is required"
+        return 1
+    fi
+    kubectl logs -n agoda-routing -l app=istio-eastwestgateway -f --prefix --max-log-requests 20 --context privatecloud.$cluster_name
+}
+
+log_pci_egress()
+{
+    local cluster_name=$1
+    if [ -z "$cluster_name" ]; then
+        echo "Error: cluster_name is required"
+        return 1
+    fi
+    kubectl logs -n agoda-routing -l app=istio-egressgateway,traffic=pci -f --prefix --max-log-requests 20 --context privatecloud.$cluster_name
+}
+
+log_egress()
+{
+    if [ $# -lt 2 ]; then
+        echo "Usage: log_egress <cluster_name> <traffic_type>"
+        echo "Example: log_egress hk-dev-2b non-pci"
+        return 1
+    fi
+    local cluster_name=$1
+    local traffic_type=$2
+    if [ -z "$cluster_name" ]; then
+        echo "Error: cluster_name is required"
+        return 1
+    fi
+    if [ -z "$traffic_type" ]; then
+        echo "Error: traffic_type is required (e.g., 'non-pci' or 'pci')"
+        return 1
+    fi
+    kubectl logs -n agoda-routing -l app=istio-egressgateway,traffic=$traffic_type -f --prefix --max-log-requests 20 --context privatecloud.$cluster_name
+}
+
+log_env()
+{
+    local env_name=$1
+    # count how many parameters need to be shifted
+    local count_shift=0
+    if [ -z "$env_name" ]; then
+        echo "Error: env_name is required"
+        return 1
+    else
+        ((count_shift++))
+    fi
+    local namespace=$2
+    local namespace_arg=""
+    if [ ! -z "$namespace" ]; then
+        namespace_arg="--namespace=$namespace"
+        ((count_shift++))
+    fi
+    local cluster_name=$3
+    local cluster_arg=""
+    if [ ! -z "$cluster_name" ]; then
+        cluster_arg="--context=privatecloud.$cluster_name"
+        ((count_shift++))
+    fi
+    # Shift off the first three parameters so that any remaining parameters can be passed to kubectl logs
+    shift $count_shift
+    # All remaining parameters are now in "$@"
+
+    echo "kubectl logs -l privatecloud.agoda.com/environment=$env_name -f --prefix --max-log-requests 100 $cluster_arg $namespace_arg \"$@\""
+    kubectl logs -l privatecloud.agoda.com/environment=$env_name -f --prefix --max-log-requests 100 $cluster_arg $namespace_arg "$@"
+}

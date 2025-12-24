@@ -1,8 +1,35 @@
-ULIMIT=65536
-if [[ "$(ulimit -n)" != $ULIMIT ]]; then
-    sudo /bin/prlimit --nofile=$ULIMIT:$ULIMIT --pid $$
-    exec /bin/zsh
+# for wsl
+# ULIMIT=65536
+# if [[ "$(ulimit -n)" != $ULIMIT ]]; then
+#     sudo /bin/prlimit --nofile=$ULIMIT:$ULIMIT --pid $$
+#     exec /bin/zsh
+# fi
+
+# mac
+
+# krew
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+# pipx
+export PATH="$HOME/.local/bin:$PATH"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  IS_MACOS="true"
 fi
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+if [[ "$PAGER" == "head -n 10000 | cat" || "$COMPOSER_NO_INTERACTION" == "1" ]]; then
+  return
+fi
+# if [[ "$TERM_PROGRAM" == "vscode" || "$TERM_PROGRAM" == "cursor" ]]; then
+#   return
+# fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -119,7 +146,12 @@ source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# mac
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# wsl
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 if type brew &>/dev/null
 then
@@ -129,14 +161,45 @@ then
   compinit
 fi
 
+# go binary
+export PATH="$(go env GOPATH)/bin:$PATH"
+
+if [ ! -z "$IS_MACOS" ]; then
+  # gnu tool
+  BREW_PREFIX="$(brew --prefix)"
+  export PATH="$BREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+  export PATH="$BREW_PREFIX/opt/findutils/libexec/gnubin:$PATH"
+  export PATH="$BREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH"
+  export PATH="$BREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
+  export PATH="$BREW_PREFIX/opt/gawk/libexec/gnubin:$PATH"
+  export PATH="$BREW_PREFIX/opt/gnu-indent/libexec/gnubin:$PATH"
+  export PATH="$BREW_PREFIX/opt/grep/libexec/gnubin:$PATH"
+
+  # >>> conda initialize >>>
+  # !! Contents within this block are managed by 'conda init' !!
+  __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+  else
+      if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+          . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+      else
+          export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
+      fi
+  fi
+  unset __conda_setup
+  # <<< conda initialize <<<
+fi
+
+# wsl
 # go bin path
-export PATH="$(go env GOPATH)/bin:/home/linuxbrew/.linuxbrew/opt/node@16/bin:${KREW_ROOT:-$HOME/.krew}/bin:$(wslpath $(wslvar USERPROFILE))/AppData/Local/Programs/Microsoft VS Code/bin:$PATH"
+# export PATH="$(go env GOPATH)/bin:/home/linuxbrew/.linuxbrew/opt/node@16/bin:${KREW_ROOT:-$HOME/.krew}/bin:$(wslpath $(wslvar USERPROFILE))/AppData/Local/Programs/Microsoft VS Code/bin:$PATH"
 # export LDFLAGS="-L/home/linuxbrew/.linuxbrew/opt/node@16/lib"
 # export CPPFLAGS="-I/home/linuxbrew/.linuxbrew/opt/node@16/include"
 
 # python
-export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/opt/python@3.10/bin:$PATH"
-export PKG_CONFIG_PATH="/home/linuxbrew/.linuxbrew/opt/python@3.10/lib/pkgconfig"
+# export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/opt/python@3.10/bin:$PATH"
+# export PKG_CONFIG_PATH="/home/linuxbrew/.linuxbrew/opt/python@3.10/lib/pkgconfig"
 
 # load aliases
 for DOTFILE in `find ${HOME}/.aliases`
@@ -144,25 +207,34 @@ do
   [ -f "${DOTFILE}" ] && source "${DOTFILE}"
 done
 
-[[ -n "$WT_SESSION" ]] && {
-  chpwd() {
-    echo -en '\e]9;9;"'
-    wslpath -w "$PWD" | tr -d '\n'
-    echo -en '"\x07'
-  }
-}
+# wsl
+# [[ -n "$WT_SESSION" ]] && {
+#   chpwd() {
+#     echo -en '\e]9;9;"'
+#     wslpath -w "$PWD" | tr -d '\n'
+#     echo -en '"\x07'
+#   }
+# }
 
+# wsl
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$($HOME'/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "$HOME/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="$HOME/miniconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
+# __conda_setup="$($HOME'/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+#         . "$HOME/miniconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="$HOME/miniconda3/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
 # <<< conda initialize <<<
+
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+export PATH="/opt/homebrew/opt/dotnet@8/bin:$PATH"
+
+function iterm2_print_user_vars() {
+  iterm2_set_user_var clusterCtx "$CLUSTER_CTX"
+}

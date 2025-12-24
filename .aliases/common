@@ -32,3 +32,23 @@ alias reload="exec ${SHELL} -l"
 
 # Print each PATH entry on a separate line
 alias path='echo -e ${PATH//:/\\n}'
+
+convert_unixnano()
+{
+	python <<EOF
+from datetime import datetime
+nanos = $1
+dt = datetime.fromtimestamp(nanos / 1e9)
+result = dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
+# result = '{}{:03.0f}'.format(dt.strftime('%Y-%m-%dT%H:%M:%S.%f'), nanos % 1e3)
+print(result)
+EOF
+}
+
+docker_list()
+{
+	docker container ls -a --format "{{.ID}}\t{{.Image}}\t{{.Command}}\t{{.Status}}\t{{.Names}}" | \
+    awk -F '\t' 'BEGIN {OFS=FS} { "docker image inspect --format \"{{.Os}}/{{.Architecture}}\" "$2" #"NR | getline $6; print }'
+}
+
+alias dexec='docker exec -i -t'
