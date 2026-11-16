@@ -13,6 +13,10 @@ alias kd='kubectl describe'
 alias kgy='kubectl get -o yaml'
 alias kgw='kubectl get -o wide'
 alias kl='kubectl logs'
+alias klistio='kubectl logs -c istio-proxy'
+alias klvault='kubectl logs -c vault-sidecar'
+alias klconsul='kubectl logs -c consul-sidecar'
+alias kexec='kubectl exec -it'
 
 alias kgp='kubectl get pod'
 alias krmp='kubectl delete pod'
@@ -24,7 +28,9 @@ alias kc='kubectl config'
 alias kcg='kubectl config get-contexts'
 alias kcu='kubectl config use-context'
 
-alias kls='kubectl login -sudo=privatecloud.hk-dev-2b'
+alias klogin='ztpctl k8s kubeconfig'
+alias ksudo='ztpctl k8s sudo'
+alias kls='ztpctl k8s sudo'
 alias kns='kubens'
 alias kctx='kubectx'
 alias knsar='kubens agoda-routing'
@@ -101,4 +107,25 @@ log_env()
 
     echo "kubectl logs -l privatecloud.agoda.com/environment=$env_name -f --prefix --max-log-requests 100 $cluster_arg $namespace_arg \"$@\""
     kubectl logs -l privatecloud.agoda.com/environment=$env_name -f --prefix --max-log-requests 100 $cluster_arg $namespace_arg "$@"
+}
+
+check_service()
+{
+	SERVICE_NAME=$1
+	echo "Checking service: $SERVICE_NAME"
+	for CLUSTER_NAME in f x o p c; do
+		echo "Cluster: privatecloud.my-pc-9$CLUSTER_NAME"
+                echo "-----------------------------"
+                kubectl get deploy -n $SERVICE_NAME -owide --context privatecloud.my-pc-9$CLUSTER_NAME
+                echo "-----------------------------"
+		kubectl get po -n $SERVICE_NAME --context privatecloud.my-pc-9$CLUSTER_NAME
+		echo "-----------------------------"
+	done
+}
+
+list_pod_by_node()
+{
+    NODE_NAME=$1
+    echo "Listing pods on node: $NODE_NAME"
+    kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=$NODE_NAME
 }

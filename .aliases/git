@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+alias gf='git fetch'
+alias gfa='git fetch --all --prune'
+
+alias gp='git push'
+alias gpf='git push --force-with-lease'
